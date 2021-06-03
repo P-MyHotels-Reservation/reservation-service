@@ -1,6 +1,3 @@
-server:
-  port: 8810
-
 spring:
   application:
     name: reservation-service
@@ -32,7 +29,7 @@ eureka:
       defaultZone: http://localhost:8083/eureka
 
 hotel-service:
-  host: "http://localhost:8807"
+  host: "http://localhost:8090"
   hotel-path: "/api/hotel"
 
 resilience4j:
