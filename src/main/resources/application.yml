@@ -1,58 +1,14 @@
 spring:
   application:
     name: reservation-service
-  datasource:
-    url: jdbc:postgresql://localhost:5432/guest
-    username: postgres
-    password: 1234
-  flyway:
-    schemas: reservation
-    user: postgres
-    password: 1234
-    enabled: true
+  profiles:
+    active: local
   cloud:
     config:
-      enabled: false
-  sleuth:
-    sampler:
-      percentage: 1.0
-  zipkin:
-    base-url: http://localhost:9411
-    sender:
-      type: web
-
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    serviceUrl:
-      defaultZone: http://localhost:8083/eureka
-
-hotel-service:
-  host: "http://localhost:8090"
-  hotel-path: "/api/hotel"
-
-resilience4j:
-  circuitbreaker:
-    instances:
-      roomBreaker:
-        registerHealthIndicator: true
-        slidingWindowSize: 10
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        waitDurationInOpenState: 5s
-        failureRateThreshold: 50
-        eventConsumerBufferSize: 10
-
-management:
-  health:
-    circuitbreakers:
-      enabled: true
-  endpoints:
-    web:
-      exposure:
-        include: health
-  endpoint:
-    health:
-      show-details: always
+      uri: http://localhost:8888
+      username: root
+      password: root
+      fail-fast: true
+      import:
+        optional:
+          configserver: instead
