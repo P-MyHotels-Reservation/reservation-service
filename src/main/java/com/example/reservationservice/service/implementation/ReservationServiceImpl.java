@@ -11,8 +11,10 @@ import com.example.reservationservice.repository.ReservationRepository;
 import com.example.reservationservice.service.HotelService;
 import com.example.reservationservice.service.ReservationService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.math.BigInteger;
 import java.time.Instant;
@@ -27,6 +29,7 @@ public class ReservationServiceImpl implements ReservationService {
 
   private final ReservationRepository reservationRepository;
   private final HotelService hotelService;
+  private RestTemplate restTemplate;
 
   public ReservationServiceImpl(ReservationRepository reservationRepository, HotelService hotelService) {
     this.reservationRepository = reservationRepository;
@@ -39,7 +42,8 @@ public class ReservationServiceImpl implements ReservationService {
         .orElseThrow(() -> new ReservationServiceException(ReservationErrorResponse.RESERVATION_IS_NOT_FOUND));
   }
 
-  @CircuitBreaker(name = "roomBreak", fallbackMethod = "roomFallback")
+  @CircuitBreaker(name = "roomBreak", fallbackMethod = "roomFallbBack")
+  @Retry(name = "roomBreaker")
   @Override
   public ReservationResponse create(ReservationCreatedRequest reservationCreatedRequest) {
 
@@ -69,6 +73,11 @@ public class ReservationServiceImpl implements ReservationService {
       var reservationEntity = buildReservationEntity(reservationCreatedRequest, assignedRoom);
       return convertEntityToResponse(reservationRepository.save(reservationEntity));
     }
+  }
+
+  public ReservationResponse roomFallback(ReservationCreatedRequest reservationCreatedRequest, Throwable t) {
+    System.out.println("FALL BACK:" +  reservationCreatedRequest.getGuestUuid());
+    return null;
   }
 
   @Override
