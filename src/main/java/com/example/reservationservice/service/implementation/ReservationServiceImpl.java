@@ -13,6 +13,7 @@ import com.example.reservationservice.service.ReservationService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -29,6 +30,8 @@ public class ReservationServiceImpl implements ReservationService {
 
   private final ReservationRepository reservationRepository;
   private final HotelService hotelService;
+
+  @Autowired
   private RestTemplate restTemplate;
 
   public ReservationServiceImpl(ReservationRepository reservationRepository, HotelService hotelService) {
@@ -42,8 +45,7 @@ public class ReservationServiceImpl implements ReservationService {
         .orElseThrow(() -> new ReservationServiceException(ReservationErrorResponse.RESERVATION_IS_NOT_FOUND));
   }
 
-  @CircuitBreaker(name = "roomBreak", fallbackMethod = "roomFallbBack")
-  @Retry(name = "roomBreaker")
+  @CircuitBreaker(name = "roomBreak", fallbackMethod = "roomFallBack")
   @Override
   public ReservationResponse create(ReservationCreatedRequest reservationCreatedRequest) {
 
@@ -75,8 +77,10 @@ public class ReservationServiceImpl implements ReservationService {
     }
   }
 
-  public ReservationResponse roomFallback(ReservationCreatedRequest reservationCreatedRequest, Throwable t) {
-    System.out.println("FALL BACK:" +  reservationCreatedRequest.getGuestUuid());
+  public ReservationResponse roomFallBack(ReservationCreatedRequest reservationCreatedRequest, Throwable t) {
+    System.out.println();
+    System.out.println("Hotel Id: :" +  reservationCreatedRequest.getHotelId());
+    System.out.println("Room Type: " + reservationCreatedRequest.getRoomType());
     return null;
   }
 
